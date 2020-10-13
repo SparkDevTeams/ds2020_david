@@ -1,28 +1,39 @@
 import mongoose from "mongoose";
 import Fortune from "./schemas/fortune";
-import {db_url, db_user, db_pw} from "./env_setup";
+import {db_url} from "./env_setup";
 
 // Fix error encountered during npm test: 
 // ReferenceError: regeneratorRuntime is not defined 
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 
-const connect_db = () => {
-    // Mongodb
-    const connectDb = () => {
-        return mongoose.connect(db_url);
-    };
-
+async function connect_db() {
+    console.log('Initialising MongoDB...')
+    let success = false
+    let count = 1; 
+    while (!success) {
+      try {
+        console.log('Attemppting connection with: ', db_url)
+        await mongoose.connect(db_url)
+        success = true
+      } catch (e) {
+        console.log('Attempt: ', count)  
+        console.log('Error connecting to MongoDB, retrying in 1 second')
+        console.log(e)
+        count += 1;
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+    console.log('MongoDB initialised')
     // Erase DB content and repopulate on synch if true  
     const eraseDBOnSynch = true;
-    connectDb().then(async () => {
-        if(eraseDBOnSynch){
-            console.log("Clearing DB...");
-            await Promise.all([Fortune.deleteMany({})]);
-            console.log("DB cleared!");
-            createMessages();
-        }
-    })
+    if(eraseDBOnSynch){
+        console.log("Clearing DB...");
+        await Promise.all([Fortune.deleteMany({})]);
+        console.log("DB cleared!");
+        createMessages();
+    }
+    return true;
 }
     
     
@@ -48,7 +59,10 @@ const createMessages = async () => {
     for(msg in messages)
     {
         temp = new Fortune({message: messages[msg]});
-        await temp.save(); 
+        await temp.save().catch((err) => {
+            console.log("Error saving messages to the DB");
+            console.log(err);
+        }); 
     }
     console.log("Messages created!");
 };
