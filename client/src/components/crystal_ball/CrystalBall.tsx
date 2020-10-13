@@ -6,25 +6,23 @@ import "./CrystalBall.css";
 const CrystalBall: React.FC = () => {
   let url: string = "";
 
-  if (process.env.NODE_ENV === "production") {
-    url = "http://" + process.env.REACT_APP_PROD_SERVER + "/fortune";
-  } else if (process.env.NODE_ENV === "development") {
-    url = "http://" + process.env.REACT_APP_DEV_SERVER + "/fortune";
-  } else if (process.env.NODE_ENV === "test") {
-    url = "http://" + process.env.REACT_APP_TEST_SERVER + "/fortune";
-  }
+  url = window.location.protocol + "//" + window.location.host + "/fortune";
+  // url = "http://104.196.179.144:8080/fortune";
 
   const [msg, setMsg] = useState("");
 
   let get_message = () => {
-    // console.log("Clicked!");
+    console.log("Clicked!");
+    console.log(url);
     axios
       .get(url)
-      .then(res => {
-        // console.log(res);
+      .then((res) => {
+        console.log('Response:')
+        console.log(res);
         setMsg(res.data);
       })
-      .catch(err => {
+      .catch((err) => {
+        console.log("Error:")
         console.log(err);
       });
   };
@@ -36,7 +34,7 @@ const CrystalBall: React.FC = () => {
         <h5 className="card-title">What is your future?</h5>
         <h4 id="msg">{msg}</h4>
         {/* <h4 id="msg">Blah!!</h4> */}
-        <a href="#" onClick={get_message} className="btn btn-primary">
+        <a href="/" onClick={get_message} className="btn btn-primary">
           Get My Fortune Told
         </a>
       </div>
