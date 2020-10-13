@@ -47,6 +47,9 @@ jobs:
       - name: Npm install server
         run: npm install
         working-directory: ${{ env.server }}
+      - name: Npm install babel helper
+        run: npm install @babel/helper-compilation-targets --save-dev
+        working-directory: ${{ env.server }}
       - name: Npm install client
         run: npm install
         working-directory: ${{ env.client }}
